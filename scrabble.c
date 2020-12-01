@@ -28,6 +28,9 @@ int main()
     case 4:
         solve4();
         break;
+    case 5:
+        solve5();
+        break;
     
     default:
         break;
@@ -84,7 +87,7 @@ void solve2()
 void solve3()
 {
     int n, i, x, y, direction, score_player1 = 0, score_player2 = 0, multiply;
-    int has_xx, has_yy;
+    int has_xx, ends_yy;
     char word[BOARD_SIZE+1], XX[3], YY[3];
 
 
@@ -96,9 +99,9 @@ void solve3()
         fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
         insert_word(y,x,direction,word);
         has_xx = check_substring(word,XX);
-        has_yy = check_substring(word,YY);
+        ends_yy = check_substring_ending(word,YY);
 
-        multiply = calculate_multiplier(y,x,direction,word,has_xx,has_yy);
+        multiply = calculate_multiplier(y,x,direction,word,has_xx,ends_yy);
         
         // if i is even then it is player 1's turn
         if(i % 2 == 0)
@@ -145,6 +148,76 @@ void solve4()
 
 }
 
+void solve5()
+{
+    int n, i, x, y, direction, score_player1 = 0, score_player2 = 0, multiply;
+    int has_xx, ends_yy;
+    char word[BOARD_SIZE+1], XX[3], YY[3];
+
+
+    fscanf(stdin,"%s %s",XX,YY);
+    fscanf(stdin,"%d",&n);
+
+    // calculate initial scores
+    for(i = 0; i < n; ++i)
+    {
+        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
+        insert_word(y,x,direction,word);
+        mark_word(word);
+        has_xx = check_substring(word,XX);
+        ends_yy = check_substring_ending(word,YY);
+
+        multiply = calculate_multiplier(y,x,direction,word,has_xx,ends_yy);
+        
+        // if i is even then it is player 1's turn
+        if(i % 2 == 0)
+        {
+            score_player1 += (calculate_score(word) * multiply);
+        }
+        // if i is odd then it is player 2's turn
+        else
+        {
+            score_player2 += (calculate_score(word) * multiply);
+        }
+    }
+
+    int maximum_score = 0, selected_word, aux_score = 0, aux_x = 0, aux_y = 0, aux_direction = 0;
+    for(i = 0; i< NUM_WORDS ; ++i)
+    {
+        has_xx = check_substring(words[i], XX);
+        ends_yy = check_substring_ending(words[i], YY);
+
+        aux_score = 0;
+
+        // calculate the maximum score we can obtain by placing the word at index i
+        calculate_optimal_placement(i, has_xx, ends_yy, &aux_score, &aux_y, &aux_x, &aux_direction);
+ 
+        // if it is the best score so far, we update
+        if(aux_score > maximum_score)
+        {
+            maximum_score = aux_score;
+            y = aux_y;
+            x = aux_x;
+            direction = aux_direction;
+            selected_word = i;
+        }
+    }
+
+    // if we can score higher than player one, we insert the word and print the result
+    if(score_player2 + maximum_score >= score_player1)
+    {
+        insert_word(y,x,direction,words[selected_word]);
+        print_board(playing_board);
+    }
+    else
+    {
+        // in case we can't win
+        fprintf(stdout,"Fail!");
+    }
+    
+    
+}
+
 // insert the word in the playing board
 void insert_word(int y, int x, int direction, char word[])
 {
@@ -167,7 +240,7 @@ void insert_word(int y, int x, int direction, char word[])
         }
     }
 }
-int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, int has_yy)
+int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, int ends_yy)
 {
     int i,j, length = strlen(word), multiply = 1;
     // the word is horizontal
@@ -177,7 +250,7 @@ int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, i
         {
             if(bonus_board[y][j+x] == 1 && has_xx)
                 multiply*=2;
-            if(bonus_board[y][j+x] == 2 && has_yy)
+            if(bonus_board[y][j+x] == 2 && ends_yy)
                 multiply*=3;
         }
     }
@@ -188,7 +261,7 @@ int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, i
         {
             if(bonus_board[i+y][x] == 1 && has_xx)
                 multiply*=2;
-            if(bonus_board[i+y][x] == 2 && has_yy)
+            if(bonus_board[i+y][x] == 2 && ends_yy)
                 multiply*=3;
         }
     }
@@ -214,6 +287,16 @@ int check_substring(char word[], char XX[])
     return 0;
 }
 
+int check_substring_ending(char word[], char XX[])
+{
+    int length = strlen(word);
+    if(length < 2)
+        return 0;
+    if(word[length - 1] == XX[1] && word[length - 2] == XX[0])
+        return 1;
+    return 0;
+}
+
 void print_score(int score_player1, int score_player2)
 {
     fprintf(stdout, "Player 1: %d Points\n", score_player1);
@@ -235,7 +318,7 @@ void mark_word(char word[])
 
 int try_place_word(int word_index)
 {
-    int x, y, j;
+    int x, y, j, found, length = strlen(words[word_index]);;
 
     if(used_words[word_index] == 1)
         return 0;
@@ -247,8 +330,7 @@ int try_place_word(int word_index)
             // if the first letter matches
             if(words[word_index][0] == playing_board[y][x])
             {
-                int length = strlen(words[word_index]);
-                int found = 1; // presumes we can place the word
+                found = 1; // presumes we can place the word
 
                 // try to place it horizontly
                     // if it fits
@@ -311,6 +393,96 @@ int try_place_word(int word_index)
     }
 
     return 0;
+}
+
+void calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *aux_score, int *aux_y, int *aux_x, int *aux_direction)
+{
+    int x, y, j, score, multiplier, found, length = strlen(words[word_index]);
+
+    if(used_words[word_index] == 1)
+        return;
+
+    for(y = 0; y < BOARD_SIZE; ++y)
+    {
+        for(x = 0; x < BOARD_SIZE; ++x)
+        {
+            // if the first letter matches
+            if(words[word_index][0] == playing_board[y][x])
+            {
+                found = 1; // presumes we can place the word
+
+                // try to place it horizontly
+                    // if it fits
+                if(x + length <= BOARD_SIZE)
+                {
+                    // check if there is another word in the way
+                    for(j = x+1; j < x + length; ++j)
+                    {
+
+                        // if we find a bad letter we can't place the word
+                        if(playing_board[y][j] != '.')
+                        {
+                            found = 0;
+                            break;
+                        }
+                    }
+                }
+                else
+                    found = 0;
+                
+                
+                if(found == 1)
+                {
+                    score = calculate_score(words[word_index]);
+                    multiplier = calculate_multiplier(y,x,0,words[word_index],has_xx,ends_yy);
+
+                    if(score * multiplier > *aux_score)
+                    {
+                        *aux_score = score * multiplier;
+                        *aux_y = y;
+                        *aux_x = x;
+                        *aux_direction = 0;
+                    }
+                }
+
+                // presumes again we can place the word
+                found = 1;
+
+                // try ty place it verically
+                if(y + length <= BOARD_SIZE)
+                {
+                    // check if there is another word in the way
+                    for(j = y+1; j < y + length; ++j)
+                    {
+                        //if we find a bad letter we can't place the word
+                        if(playing_board[j][x] != '.')
+                        {
+                            found = 0;
+                            break;
+                        }
+                    }
+                }
+                else
+                    found = 0;
+                
+
+                // we found the word and we place it, signaling the function succeded
+                if(found == 1)
+                {
+                    score = calculate_score(words[word_index]);
+                    multiplier = calculate_multiplier(y,x,1,words[word_index],has_xx,ends_yy);
+
+                    if(score * multiplier > *aux_score)
+                    {
+                        *aux_score = score * multiplier;
+                        *aux_y = y;
+                        *aux_x = x;
+                        *aux_direction = 1;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void print_line_delimiter()

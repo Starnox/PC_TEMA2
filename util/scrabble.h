@@ -10,15 +10,20 @@ void solve1();
 void solve2();
 void solve3();
 void solve4();
+void solve5();
 
 void initialise_board();
 void insert_word(int y, int x, int direction, char word[]);
 int calculate_score();
 void print_score(int score_player1, int score_player2);
 int check_substring(char word[], char XX[]);
-int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, int has_yy);
+int check_substring_ending(char word[], char XX[]);
+int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, int ends_yy);
 void mark_word(char word[]);
 int try_place_word(int word_index);
+void calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *aux_score, int *aux_y, int *aux_x, int *aux_direction);
+
+
 
 static char playing_board[BOARD_SIZE][BOARD_SIZE];
 
