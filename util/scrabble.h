@@ -11,6 +11,7 @@ void solve2();
 void solve3();
 void solve4();
 void solve5();
+void solve6();
 
 void initialise_board();
 void insert_word(int y, int x, int direction, char word[]);

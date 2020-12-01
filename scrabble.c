@@ -31,7 +31,10 @@ int main()
     case 5:
         solve5();
         break;
-    
+    case 6:
+        solve6();
+        break;
+
     default:
         break;
     }
@@ -214,8 +217,68 @@ void solve5()
         // in case we can't win
         fprintf(stdout,"Fail!");
     }
+}
+
+void solve6()
+{
     
+    int n, i, word_index, x, y, direction, score_player1 = 0, score_player2 = 0, multiply;
+    int has_xx, ends_yy;
+    char word[BOARD_SIZE+1], XX[3], YY[3];
+
+
+    fscanf(stdin,"%s %s",XX,YY);
+    fscanf(stdin,"%d",&n);
+
+    for(i = 0; i < n; ++i)
+    {
+        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
+        insert_word(y,x,direction,word);
+        mark_word(word);
+        has_xx = check_substring(word,XX);
+        ends_yy = check_substring_ending(word,YY);
+
+        multiply = calculate_multiplier(y,x,direction,word,has_xx,ends_yy);
+        
+        score_player1 += (calculate_score(word) * multiply);
+
+        // Calculate the best move for player2
+
+        int maximum_score = 0, selected_word, aux_score = 0, aux_x = 0, aux_y = 0, aux_direction = 0;
+        for(word_index = 0; word_index< NUM_WORDS ; ++word_index)
+        {
+            has_xx = check_substring(words[word_index], XX);
+            ends_yy = check_substring_ending(words[word_index], YY);
+
+            aux_score = 0;
+
+            // calculate the maximum score we can obtain by placing the word at index i
+            calculate_optimal_placement(word_index, has_xx, ends_yy, &aux_score, &aux_y, &aux_x, &aux_direction);
     
+            // if it is the best score so far, we update
+            if(aux_score > maximum_score)
+            {
+                maximum_score = aux_score;
+                y = aux_y;
+                x = aux_x;
+                direction = aux_direction;
+                selected_word = word_index;
+            }
+        }
+        insert_word(y,x,direction,words[selected_word]);
+        mark_word(words[selected_word]);
+        score_player2+=maximum_score;
+    }
+
+    print_board(playing_board);
+    int winner = 0;
+    if(score_player1 > score_player2)
+        winner = 1;
+    else
+        winner = 2;
+    
+    fprintf(stdout,"Player %d Won!",winner);
+
 }
 
 // insert the word in the playing board
@@ -442,6 +505,7 @@ void calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *a
                         *aux_y = y;
                         *aux_x = x;
                         *aux_direction = 0;
+                        return;
                     }
                 }
 
@@ -478,6 +542,7 @@ void calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *a
                         *aux_y = y;
                         *aux_x = x;
                         *aux_direction = 1;
+                        return;
                     }
                 }
             }
