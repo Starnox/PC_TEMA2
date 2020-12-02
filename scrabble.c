@@ -4,11 +4,14 @@
 #include "util/scrabble.h"
 #include "util/print_board.h"
 
+#define LINE_LENGTH  200
+
 int main()
 {
     int cerinta;
-    fscanf(stdin,"%d",&cerinta);
-
+    
+    char *line = (char *) initialise_reader();
+    read_n(&cerinta,line);
     initialise_board();
 
     switch (cerinta)
@@ -41,20 +44,84 @@ int main()
     
 }
 
+const char* initialise_reader()
+{
+    const char * line = malloc(LINE_LENGTH * sizeof(char));
+    return line;
+}
+
+const char** split_line(char *line)
+{
+    int k = 0;
+    char *delim = " ";
+    char **words = malloc(LINE_LENGTH * LINE_LENGTH * sizeof(char));   
+
+    char *ptr = strtok(line,delim);
+
+    while(ptr != NULL)
+    {
+        *(words+k) = ptr; 
+        k++;
+        ptr = strtok(NULL, delim);
+    } 
+    return (const char**) words;
+}
+
+void read_word(int *y, int *x, int *direction, char *word, char *line)
+{
+    fgets(line, LINE_LENGTH, stdin);
+    if(line[strlen(line)-1] == '\n')
+        line[strlen(line)-1] = '\0';
+
+    const char **words = split_line(line);
+    *y = atoi(*words);
+    *x = atoi(*(words + 1));
+    *direction = atoi(*(words + 2));
+    strcpy(word,*(words+3)); 
+}
+
+void read_n(int *n, char *line)
+{
+    fgets(line,LINE_LENGTH,stdin);
+    if(line[strlen(line) - 1] == '\n')
+        line[strlen(line) - 1] = '\0';    
+    
+    *n = atoi((const char *) line);
+}
+
+void read_XX(char *XX)
+{
+    fgets(XX,LINE_LENGTH,stdin);
+    if(XX[strlen(XX) - 1] == '\n')
+        XX[strlen(XX) - 1] = '\0';
+}
+
+
 void solve0()
 {
     print_board(playing_board);
+    
 }
 
 void solve1()
 {
     int n, i, x, y, direction;
-    char word[BOARD_SIZE+1];
+    char *word, *line = (char *)initialise_reader();
 
-    fscanf(stdin,"%d",&n);
+    if(line == NULL)
+    {
+        return;
+    }
+
+    word = malloc(LINE_LENGTH * sizeof(char));
+    if(word == NULL)
+        return;
+
+    read_n(&n,line);
+
     for(i = 0; i < n; ++i)
     {
-        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
+        read_word(&y,&x,&direction,word,line);
         insert_word(y,x,direction,word);
     }
     print_board(playing_board);
@@ -63,12 +130,19 @@ void solve1()
 void solve2()
 {
     int n, i, x, y, direction, score_player1 = 0, score_player2 = 0;
-    char word[BOARD_SIZE+1];
+    char *word, *line = (char *)initialise_reader();
 
-    fscanf(stdin,"%d",&n);
+    if(line == NULL)
+        return;
+
+    word = malloc(LINE_LENGTH * sizeof(char));
+    if(word == NULL)
+        return;
+        
+    read_n(&n,line);
     for(i = 0; i < n; ++i)
     {
-        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
+        read_word(&y,&x,&direction,word,line);
         insert_word(y,x,direction,word);
         
         // if i is even then it is player 1's turn
@@ -89,17 +163,30 @@ void solve2()
 
 void solve3()
 {
+    // Initialisation and memory allocation
     int n, i, x, y, direction, score_player1 = 0, score_player2 = 0, multiply;
     int has_xx, ends_yy;
-    char word[BOARD_SIZE+1], XX[3], YY[3];
+    char *word, *XX, *YY, *line = (char *)initialise_reader();
 
-
-    fscanf(stdin,"%s %s",XX,YY);
-    fscanf(stdin,"%d",&n);
+    word = malloc(LINE_LENGTH * sizeof(char));
+    if(word == NULL)
+        return;
+    
+    XX = malloc(LINE_LENGTH * sizeof(char));
+    if(XX == NULL)
+        return;
+    
+    YY = malloc(LINE_LENGTH * sizeof(char));
+    if(YY == NULL)
+        return;
+        
+    read_XX(XX);
+    read_XX(YY);
+    read_n(&n,line);
 
     for(i = 0; i < n; ++i)
     {
-        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
+        read_word(&y,&x,&direction,word,line);
         insert_word(y,x,direction,word);
         has_xx = check_substring(word,XX);
         ends_yy = check_substring_ending(word,YY);
@@ -123,18 +210,29 @@ void solve3()
 void solve4()
 {
     // Declaring and reading the input
-    int n, i, x, y, direction;
-    
-    char word[BOARD_SIZE+1], XX[3], YY[3];
+    int n, i, x, y, direction;    
+    char *word, *XX, *YY, *line = (char *) initialise_reader();
 
-    fscanf(stdin,"%s %s",XX,YY);
-    fscanf(stdin,"%d",&n);
+    word = malloc(LINE_LENGTH * sizeof(char));
+    if(word == NULL)
+        return;
+    
+    XX = malloc(LINE_LENGTH * sizeof(char));
+    if(XX == NULL)
+        return;
+    
+    YY = malloc(LINE_LENGTH * sizeof(char));
+    if(YY == NULL)
+        return;
+        
+    read_XX(XX);
+    read_XX(YY);
+    read_n(&n,line);
 
     // Placing the words in the board and marking them down
     for(i = 0; i < n; ++i)
     {
-        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
-
+        read_word(&y,&x,&direction,word,line);
         insert_word(y,x,direction,word);
         mark_word(word);
     }
@@ -155,18 +253,31 @@ void solve5()
 {
     int n, i, x, y, direction, score_player1 = 0, score_player2 = 0, multiply;
     int has_xx, ends_yy;
-    char word[BOARD_SIZE+1], XX[3], YY[3];
+    char *word, *XX, *YY, *line = (char *) initialise_reader();
 
-
-    fscanf(stdin,"%s %s",XX,YY);
-    fscanf(stdin,"%d",&n);
+    word = malloc(LINE_LENGTH * sizeof(char));
+    if(word == NULL)
+        return;
+    
+    XX = malloc(LINE_LENGTH * sizeof(char));
+    if(XX == NULL)
+        return;
+    
+    YY = malloc(LINE_LENGTH * sizeof(char));
+    if(YY == NULL)
+        return;
+        
+    read_XX(XX);
+    read_XX(YY);
+    read_n(&n,line);
 
     // calculate initial scores
     for(i = 0; i < n; ++i)
     {
-        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
+        read_word(&y,&x,&direction,word,line);
         insert_word(y,x,direction,word);
         mark_word(word);
+
         has_xx = check_substring(word,XX);
         ends_yy = check_substring_ending(word,YY);
 
@@ -224,17 +335,30 @@ void solve6()
     
     int n, i, word_index, x, y, direction, score_player1 = 0, score_player2 = 0, multiply;
     int has_xx, ends_yy;
-    char word[BOARD_SIZE+1], XX[3], YY[3];
+    char *word, *XX, *YY, *line = (char *) initialise_reader();
 
-
-    fscanf(stdin,"%s %s",XX,YY);
-    fscanf(stdin,"%d",&n);
+    word = malloc(LINE_LENGTH * sizeof(char));
+    if(word == NULL)
+        return;
+    
+    XX = malloc(LINE_LENGTH * sizeof(char));
+    if(XX == NULL)
+        return;
+    
+    YY = malloc(LINE_LENGTH * sizeof(char));
+    if(YY == NULL)
+        return;
+        
+    read_XX(XX);
+    read_XX(YY);
+    read_n(&n,line);
 
     for(i = 0; i < n; ++i)
     {
-        fscanf(stdin,"%d %d %d %s",&y,&x,&direction,word);
+        read_word(&y,&x,&direction,word,line);
         insert_word(y,x,direction,word);
         mark_word(word);
+        
         has_xx = check_substring(word,XX);
         ends_yy = check_substring_ending(word,YY);
 
