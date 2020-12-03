@@ -23,10 +23,8 @@ int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, i
 void mark_word(char word[]);
 int try_place_word(int word_index);
 void calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *aux_score, int *aux_y, int *aux_x, int *aux_direction);
-const char* initialise_reader();
-const char** split_line(char *line);
-void read_word(int *y, int *x, int *direction, char *word, char *line);
-void read_n(int *n, char *line);
+void read_word(int *y, int *x, int *direction, char *word);
+void read_n(int *n);
 void read_XX(char *XX);
 
 
