@@ -1,7 +1,14 @@
 CC = gcc
-CFLAG = -Wall -Wextra -lprint_board -L ./util
+CFLAG = -Wall -Wextra
 EXE = scrabble
 OBJ = scrabble.o
+
+OS := $(shell uname)
+ifeq ($(OS), Darwin)
+	LDFLAGS = -L./util -lprint_board_mac
+else
+	LDFLAGS = -L./util -lprint_board_lin
+endif
 
 build: $(EXE)
 
@@ -9,7 +16,7 @@ build: $(EXE)
 	$(CC) -c -o $@ $< $(CFLAG)
 
 $(EXE): $(OBJ)
-	$(CC) $^ $(CFLAG) -o $(EXE)
+	$(CC) $^ $(CFLAG) $(LDFLAGS) -o $(EXE)
 
 run:
 	./$(EXE)
