@@ -18,7 +18,7 @@ void solve6();
 
 void initialise_board();
 void insert_word(int y, int x, int direction, char word[]);
-int calculate_score();
+int calculate_score(char word[]);
 void print_score(int score_player1, int score_player2);
 int check_substring(char word[], char XX[]);
 int check_substring_ending(char word[], char XX[]);
