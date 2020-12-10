@@ -722,36 +722,6 @@ void calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *a
     }
 }
 
-void print_line_delimiter()
-{
-    for(int i = 0; i< BOARD_SIZE; ++i)
-    {
-        fprintf(stdout,":---");
-    }
-    fprintf(stdout,":\n");
-}
-
-void print_board(char board[PRINT_BOARD_SIZE][PRINT_BOARD_SIZE])
-{
-    int i,j;
-    for(i = 0; i < BOARD_SIZE; ++i)
-    {
-        print_line_delimiter();
-
-        for(j = 0; j < BOARD_SIZE; ++j)
-        {
-            if(board[i][j] == '.')
-                fprintf(stdout,"|   ");
-            else
-                fprintf(stdout,"| %c ",board[i][j]);
-        }
-
-        fprintf(stdout,"|\n");
-    }
-
-    print_line_delimiter();
-}
-
 void initialise_board()
 {
     memset(playing_board, (int) '.', sizeof(playing_board));

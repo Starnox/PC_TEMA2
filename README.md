@@ -29,9 +29,8 @@ C-ul pentru a putea folosi functiile oriunde am nevoie:
 * `read_n(int *n)` - citeste un singur numar n
 * `read_x(char *XX)` - citeste un sir de 2 caractere
 
-#### Functii de afisare
-* `print_board(char board[PRINT_BOARD_SIZE][PRINT_BOARD_SIZE])` - parcurg "tabla de joc" si afisez in consola fiecare celula in formatul dorit
-* `print_line_delimiter()` - printeaza caracterele care despart liniile
+#### Functie de afisare
+* `print_score(int score_player1, int score_player2)` - doar afisez cele doua variabile in formatul specificat
 
 #### Functii de logica
 * `insert_word(int y, int x, int direction, char word[])` - inserez in tabla de joc fiecare caracter al cuvantului respectand
@@ -42,7 +41,7 @@ aferenta
 * `calculate_score(char word[])` - parcurg fiecare caracter si adaug la suma punctajul corespunzator din vectorul `points_for_letter[26]` hardcodat la inceputul fisierului
 * `check_substring(char word[], char XX[])` - verific daca sirul `XX` se regaseste in `WORD`
 * `check_substring_ending(char word[], char XX[])` - verific daca sirul `WORD` se termina in `XX`
-* `print_score(int score_player1, int score_player2)` - doar afisez cele doua variabile in formatul specificat
+
 * `mark_word(char word[], int used_words[])` - Iterez prin fiecare cuvant din lista data si il compar cu `WORD`.
 Daca sunt egale il marchez pe `WORD` in vectorul `used_words[]` pentru a stii ca este folosit.
 * `try_place_word(int word_index, int used_words[])` - Parcurg fiecare casuta din tabla de joc, iar daca in aceea
