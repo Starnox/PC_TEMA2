@@ -23,10 +23,10 @@ void print_score(int score_player1, int score_player2);
 int check_substring(char word[], char XX[]);
 int check_substring_ending(char word[], char XX[]);
 int calculate_multiplier(int y, int x, int direction, char word[], int has_xx, int ends_yy);
-void mark_word(char word[]);
-int try_place_word(int word_index);
+void mark_word(char word[], int used_words[]);
+int try_place_word(int word_index, int used_words[]);
 void calculate_optimal_placement(int word_index, int has_xx, int ends_yy,
-                             int *aux_score, int *aux_y, int *aux_x, int *aux_direction);
+                             int *aux_score, int *aux_y, int *aux_x, int *aux_direction, int used_words[]);
 void read_word(int *y, int *x, int *direction, char *word);
 void read_n(int *n);
 void read_XX(char *XX);
@@ -34,7 +34,7 @@ void read_XX(char *XX);
 
 char playing_board[BOARD_SIZE][BOARD_SIZE];
 int points_for_letter[26] = {1,3,3,2,1,4,2,4,1,8,5,1,3,1,1,3,10,1,1,1,1,4,4,8,4,10};
-int used_words[NUM_WORDS];
+//int used_words[NUM_WORDS];
 
 int main()
 {
@@ -214,8 +214,9 @@ void solve3()
 void solve4()
 {
     // Declaring and reading the input
-    int n, i, x, y, direction;    
+    int n, i, x, y, direction,used_words[NUM_WORDS];    
     char word[LINE_LENGTH], XX[LINE_LENGTH], YY[LINE_LENGTH];
+    memset(used_words,0,sizeof(used_words));
         
     read_XX(XX);
     read_XX(YY);
@@ -226,13 +227,13 @@ void solve4()
     {
         read_word(&y,&x,&direction,word);
         insert_word(y,x,direction,word);
-        mark_word(word);
+        mark_word(word,used_words);
     }
 
     for(i = 0; i< NUM_WORDS ; ++i)
     {
         // try to place the word and place it -> returns 1 if the operation was succesful
-        if(try_place_word(i) == 1)
+        if(try_place_word(i,used_words) == 1)
         {
             break;
         }
@@ -246,7 +247,9 @@ void solve5()
 {
     // Initialisation and reading
     int n, i, x, y, direction, score_player1 = 0, score_player2 = 0, multiply;
-    int has_xx, ends_yy;
+    int has_xx, ends_yy, used_words[NUM_WORDS];
+
+    memset(used_words,0,sizeof(used_words));
     char word[LINE_LENGTH], XX[LINE_LENGTH], YY[LINE_LENGTH];
         
     read_XX(XX);
@@ -258,7 +261,7 @@ void solve5()
     {
         read_word(&y,&x,&direction,word);
         insert_word(y,x,direction,word);
-        mark_word(word);
+        mark_word(word,used_words);
 
         has_xx = check_substring(word,XX);
         ends_yy = check_substring_ending(word,YY);
@@ -288,7 +291,8 @@ void solve5()
 
         // calculate the maximum score we can obtain by placing every unmarked word
         // in the playing board
-        calculate_optimal_placement(i, has_xx, ends_yy, &aux_score, &aux_y, &aux_x, &aux_direction);
+        calculate_optimal_placement(i, has_xx, ends_yy, &aux_score, &aux_y, &aux_x, &aux_direction,
+                                    used_words);
         int to_change = 0;
 
         // if it is the best score so far, we update
@@ -346,7 +350,9 @@ void solve6()
     int n, i, word_index, x, y, direction,
                 score_player1 = 0, score_player2 = 0, multiply;
 
-    int has_xx, ends_yy;
+    int has_xx, ends_yy, used_words[NUM_WORDS];
+    memset(used_words, 0, sizeof(used_words));
+
     char word[LINE_LENGTH], XX[LINE_LENGTH], YY[LINE_LENGTH];
         
     read_XX(XX);
@@ -357,7 +363,7 @@ void solve6()
     {
         read_word(&y,&x,&direction,word);
         insert_word(y,x,direction,word);
-        mark_word(word);
+        mark_word(word,used_words);
 
         has_xx = check_substring(word,XX);
         ends_yy = check_substring_ending(word,YY);
@@ -383,7 +389,7 @@ void solve6()
             int to_change = 0;
             // calculate the maximum score we can obtain by placing the word at index i
             calculate_optimal_placement(word_index, has_xx, ends_yy, &aux_score, 
-                                        &aux_y, &aux_x, &aux_direction);
+                                        &aux_y, &aux_x, &aux_direction,used_words);
             // if it is the best score so far, we update (the same code as in task5)
             if(aux_score > maximum_score)
             {
@@ -420,7 +426,7 @@ void solve6()
         }
         // We found the best word, we place it and update the score
         insert_word(y,x,direction,words[selected_word]);
-        mark_word(words[selected_word]);
+        mark_word(words[selected_word],used_words);
         score_player2+=maximum_score;
     }
 
@@ -531,7 +537,7 @@ void print_score(int score_player1, int score_player2)
     fprintf(stdout, "Player 2: %d Points\n", score_player2);
 }
 
-void mark_word(char word[])
+void mark_word(char word[], int used_words[])
 {
     // iterate through every word of the list
     for(int i = 0; i < NUM_WORDS; ++i)
@@ -545,7 +551,7 @@ void mark_word(char word[])
     }
 }
 
-int try_place_word(int word_index)
+int try_place_word(int word_index, int used_words[])
 {
     int x, y, j, found, length = strlen(words[word_index]);;
 
@@ -625,7 +631,7 @@ int try_place_word(int word_index)
 }
 
 void calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *aux_score,
- int *aux_y, int *aux_x, int *aux_direction)
+ int *aux_y, int *aux_x, int *aux_direction, int used_words[])
 {
     int x, y, j, score, multiplier, found, length = strlen(words[word_index]);
 

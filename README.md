@@ -16,7 +16,7 @@ natural si este pastrat _flow-ul_ programului.
 Functia main am plasat-o la inceputul fisierului deoarece este punctul de plecare
 al programului. Initial citesc cerinta pe care trebuie sa o rezolv dupa care
 initializez tabla de joc cu o matrice de 15*15 plina cu caracterul ".". 
-Folosindu-ma de instructiunea de decizie "switch" selectez taskul cerut.
+Folosindu-ma de instructiunea de decizie "switch" pentru a selecta taskul cerut.
 
 #### Functii de citire
 Enuntul a specificat clar ca nu avem voie sa citim datele cu functiile `scanf()` si
@@ -43,15 +43,15 @@ aferenta
 * `check_substring(char word[], char XX[])` - verific daca sirul `XX` se regaseste in `WORD`
 * `check_substring_ending(char word[], char XX[])` - verific daca sirul `WORD` se termina in `XX`
 * `print_score(int score_player1, int score_player2)` - doar afisez cele doua variabile in formatul specificat
-* `mark_word(char word[])` - Iterez prin fiecare cuvant din lista data si il compar cu `WORD`.
+* `mark_word(char word[], int used_words[])` - Iterez prin fiecare cuvant din lista data si il compar cu `WORD`.
 Daca sunt egale il marchez pe `WORD` in vectorul `used_words[]` pentru a stii ca este folosit.
-* `try_place_word(int word_index)` - Parcurg fiecare casuta din tabla de joc, iar daca in aceea
+* `try_place_word(int word_index, int used_words[])` - Parcurg fiecare casuta din tabla de joc, iar daca in aceea
 casuta se afla primul caracter din cuvantul situat pe pozitia `word_index` atunci verific atat pe orizontala cat si pe verticala daca il pot plasa incepand cu casuta respectiva. Daca il pot
 plasa, atunci o si fac si returnez 1 semnaland ca functia a avut loc cu succes
-* `calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *aux_score,int *aux_y, int *aux_x, int *aux_direction)` - Functia este foarte asemanatoare cu cea de dinainte
+* `calculate_optimal_placement(int word_index, int has_xx, int ends_yy, int *aux_score,int *aux_y, int *aux_x, int *aux_direction, int used_words[])` - Functia este foarte asemanatoare cu cea de dinainte
 insa de data aceasta nu ma opresc daca gasesc o pozitie valida, ci returnez prin variabilele
 date ca parametrii amplasarea optima a cuvantului situat la indicele `word_index`.
-* `initialise_board()`- folosesc functia `memset` pentru a umple tabla de joc cu caracterul '.'
+* `initialise_board()`- folosesc functia `memset()` pentru a umple tabla de joc cu caracterul '.'
 
 #### Functii de rezolvare ale taskurilor
 * `solve0()` - doar afisez tabla de joc cu functia `print_board(playing_board)` (tabla a fost
