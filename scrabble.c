@@ -34,7 +34,6 @@ void read_XX(char *XX);
 
 char playing_board[BOARD_SIZE][BOARD_SIZE];
 int points_for_letter[26] = {1,3,3,2,1,4,2,4,1,8,5,1,3,1,1,3,10,1,1,1,1,4,4,8,4,10};
-//int used_words[NUM_WORDS];
 
 int main()
 {
